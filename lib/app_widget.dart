@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:todo_list/Pages/add_list_task_view.dart';
 import 'package:todo_list/Pages/add_simple_task_view.dart';
 import 'package:todo_list/app_controller.dart';
 import 'Pages/home_view.dart';
@@ -23,7 +22,6 @@ class AppWidget extends StatelessWidget {
             routes: {
               '/': (context) => HomePage(),
               '/addSimpleTask': (context) => AddSimpleTask(),
-              '/addListTask': (context) => AddListTask()
             },
           );
         });

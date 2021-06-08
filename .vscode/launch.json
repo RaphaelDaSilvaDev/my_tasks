@@ -1,0 +1,47 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "todo_list",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "todo_list (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "IPhone 12",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "47C88B4F-C20C-4168-B465-02E83283484E"
+        },
+        {
+            "name": "Samsung M21S",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "RQ8R30A5ZNF"
+        },
+        {
+            "name": "Gome",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "QK49UGLRFUS4AECI"
+        },
+    ],
+    "compounds": [
+        {
+            "name": "All Devices",
+            "configurations": [
+                "IPhone 12",
+                "Samsung M21S",
+                "Gome",
+            ],
+        }
+    ]
+}

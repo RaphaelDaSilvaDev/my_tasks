@@ -1,5 +1,6 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:todo_list/app_controller.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,85 +12,27 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: SpeedDial(
-        backgroundColor: Theme.of(context).primaryColor,
-        animatedIcon: AnimatedIcons.menu_close,
-        overlayColor:
-            AppController.instance.isDarkTheme ? Colors.black : Colors.white,
-        overlayOpacity: 0.6,
-        foregroundColor: Colors.white,
-        children: [
-          SpeedDialChild(
-            child: Icon(
-              Icons.task,
-            ),
-            backgroundColor: Colors.lightBlue,
-            foregroundColor: Colors.white,
-            label: "Simple Task",
-            labelStyle: TextStyle(fontSize: 18),
-            labelBackgroundColor: AppController.instance.isDarkTheme
-                ? Colors.grey[800]
-                : Colors.white,
-            onTap: () {
-              Navigator.pushNamed(context, '/addSimpleTask');
-            },
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.list_alt_rounded),
-            backgroundColor: Colors.orange,
-            foregroundColor: Colors.white,
-            label: "List Task",
-            labelStyle: TextStyle(fontSize: 18),
-            labelBackgroundColor: AppController.instance.isDarkTheme
-                ? Colors.grey[800]
-                : Colors.white,
-            onTap: () {
-              Navigator.pushNamed(context, '/addListTask');
-            },
-          ),
-        ],
-      ),
-      body: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          child: Stack(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                    child: Text(
-                      "My ToDo List",
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                    child: IconButton(
-                      icon: Icon(AppController.instance.isDarkTheme
-                          ? Icons.light_mode
-                          : Icons.dark_mode),
-                      onPressed: () {
-                        AppController.instance.changeTheme();
+                  header(),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: 1,
+                      itemBuilder: (context, index) {
+                        return simpleTaskWidget(index);
                       },
                     ),
                   )
                 ],
               ),
-              Expanded(
-                child: ListView.builder(
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      return toDoSimple(index);
-                    }),
-              )
+              floatingButton(),
             ],
           ),
         ),
@@ -97,21 +40,69 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget toDoSimple(int index) {
+  Widget header() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "My Tasks",
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          ),
+          IconButton(
+            icon: Icon(AppController.instance.isDarkTheme
+                ? Icons.light_mode
+                : Icons.dark_mode),
+            onPressed: () {
+              AppController.instance.changeTheme();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget floatingButton() {
+    return Positioned(
+      bottom: 24,
+      right: 24,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(context, "/addSimpleTask");
+        },
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(16)),
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 32,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget simpleTaskWidget(int index) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 24),
       child: Card(
-        elevation: 4,
+        elevation: 0.2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
           title: Text(
             "To Do Something",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             textAlign: TextAlign.justify,
           ),
-          subtitle: Text("24 maio, 2021"),
           trailing: Checkbox(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
             onChanged: (value) {
               print(value);
             },
@@ -125,7 +116,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget toDoList(int index) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+      padding: EdgeInsets.symmetric(vertical: 2),
       child: Card(
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
