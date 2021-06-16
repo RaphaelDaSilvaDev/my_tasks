@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_list/app_widget.dart';
+import 'package:my_tasks/app_widget.dart';
 
 void main() {
   runApp(AppWidget());

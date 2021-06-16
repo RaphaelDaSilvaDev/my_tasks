@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:todo_list/Pages/add_simple_task_view.dart';
-import 'package:todo_list/app_controller.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'Pages/home_view.dart';
+import 'app_controller.dart';
 
 class AppWidget extends StatelessWidget {
   @override
@@ -11,17 +11,20 @@ class AppWidget extends StatelessWidget {
         builder: (context, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'My ToDo List',
+            title: 'My Tasks',
             theme: ThemeData(
               brightness: AppController.instance.isDarkTheme
                   ? Brightness.dark
                   : Brightness.light,
               primaryColor: Colors.green,
+              textTheme: AppController.instance.isDarkTheme
+                  ? GoogleFonts.quicksandTextTheme(
+                      Theme.of(context).primaryTextTheme)
+                  : GoogleFonts.quicksandTextTheme(Theme.of(context).textTheme),
             ),
             initialRoute: '/',
             routes: {
               '/': (context) => HomePage(),
-              '/addSimpleTask': (context) => AddSimpleTask(),
             },
           );
         });
