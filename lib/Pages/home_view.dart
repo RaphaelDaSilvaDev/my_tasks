@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:my_tasks/DataBase/database_helper.dart';
 import 'package:my_tasks/Models/task_model.dart';
+import 'package:my_tasks/Models/todo_model.dart';
 import 'package:my_tasks/Pages/add_simple_task_view.dart';
 import 'package:my_tasks/app_controller.dart';
 
@@ -15,6 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<List<Task>> _taskList;
+  late Future<List<Todo>> _todoList;
 
   void initState() {
     super.initState();
@@ -27,13 +29,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  _updateTodoList(taskId) {
+    setState(() {
+      _todoList = DatabaseHelper.instance.getTodoList(taskId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          width: double.infinity,
-          height: double.infinity,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
           child: Stack(
             children: [
               Column(
@@ -65,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                             return ListView.builder(
                               itemCount: snapshot.data!.length,
                               itemBuilder: (BuildContext context, int index) {
-                                return simpleTaskWidget(snapshot.data?[index]);
+                                return showTask(snapshot.data?[index]);
                               },
                             );
                           }
@@ -107,7 +115,7 @@ class _HomePageState extends State<HomePage> {
   Widget floatingButton() {
     return Positioned(
       bottom: 24,
-      right: 24,
+      right: 28,
       child: GestureDetector(
         onTap: () => Navigator.push(
             context,
@@ -127,6 +135,31 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget showTask(Task task) {
+    _todoList = DatabaseHelper.instance.getTodoList(task.id);
+
+    return Expanded(
+      child: FutureBuilder(
+          initialData: [],
+          future: _todoList,
+          builder: (context, AsyncSnapshot<List> snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).primaryColor,
+                ),
+              );
+            }
+
+            if (snapshot.data!.isEmpty) {
+              return simpleTaskWidget(task);
+            } else {
+              return todoTaskWidget(task, snapshot);
+            }
+          }),
     );
   }
 
@@ -151,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                       EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                   title: Text(
                     task.title,
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w300),
                     textAlign: TextAlign.justify,
                   ),
                   subtitle: Text(
@@ -183,9 +216,11 @@ class _HomePageState extends State<HomePage> {
         : Padding(
             padding: EdgeInsets.symmetric(vertical: 2, horizontal: 24),
             child: Dismissible(
-              onDismissed: (direction) =>
-                  {DatabaseHelper.instance.deleteTask(task), _updateTaskList()},
-              key: Key(task.id.toString()),
+              onDismissed: (direction) {
+                DatabaseHelper.instance.deleteTask(task);
+                _updateTaskList();
+              },
+              key: UniqueKey(),
               direction: DismissDirection.endToStart,
               background: ClipRRect(
                   borderRadius: BorderRadius.circular(24),
@@ -218,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                     title: Text(
                       task.title,
                       style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                       textAlign: TextAlign.justify,
                     ),
                     subtitle: Text(
@@ -251,42 +286,90 @@ class _HomePageState extends State<HomePage> {
           );
   }
 
-  Widget toDoList(int index) {
+  Widget todoTaskWidget(Task task, AsyncSnapshot<List> snapshot) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 24),
       child: Card(
-        elevation: 4,
+        elevation: 0.2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        color: AppController.instance.isDarkTheme
+            ? task.isDone == 1
+                ? Colors.grey[600]
+                : null
+            : task.isDone == 1
+                ? Colors.grey[100]
+                : null,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: EdgeInsets.only(top: 12, left: 12),
-              child: Text(
-                "Task Name",
-                style: TextStyle(fontSize: 18),
+            ListTile(
+              visualDensity: VisualDensity(vertical: -4),
+              enabled: task.isDone == 1 ? false : true,
+              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+              title: Text(
+                task.title,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w300),
+                textAlign: TextAlign.justify,
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddSimpleTask(
+                      task: task, updateTaskList: _updateTaskList),
+                ),
+              ),
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 310),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: snapshot.data!.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return toDoList(task, snapshot.data?[index]);
+                },
               ),
             ),
             ListTile(
+              dense: true,
               title: Text(
-                "Firts task",
+                task.date,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
                 textAlign: TextAlign.justify,
               ),
-              subtitle: Text("24 maio, 2021"),
-              trailing: Checkbox(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4)),
-                onChanged: (value) {
-                  print(value);
-                },
-                activeColor: Theme.of(context).primaryColor,
-                value: true,
-              ),
-            ),
-            Divider(),
+            )
           ],
         ),
       ),
+    );
+  }
+
+  Widget toDoList(Task task, Todo todo) {
+    return Row(
+      children: [
+        Checkbox(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          onChanged: (value) {
+            if (value != null) {
+              todo.isDone = value ? 1 : 0;
+              DatabaseHelper.instance.updateTodo(todo);
+              _updateTodoList(task.id);
+            }
+          },
+          activeColor: Colors.green,
+          value: todo.isDone == 1 ? true : false,
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Text(
+              todo.title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
+              textAlign: TextAlign.justify,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

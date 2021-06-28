@@ -84,7 +84,7 @@ class _AddSimpleTaskState extends State<AddSimpleTask> {
                           }
                         }),
                   ),
-                  newTodoWidget()
+                  _taskId != 0 ? newTodoWidget() : Container()
                 ],
               ),
               floatingButton(),
@@ -112,6 +112,7 @@ class _AddSimpleTaskState extends State<AddSimpleTask> {
           ),
           Expanded(
             child: TextField(
+              textCapitalization: TextCapitalization.sentences,
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               decoration: InputDecoration(
                   hintText: widget.task?.title ?? "Task Name",
@@ -128,6 +129,7 @@ class _AddSimpleTaskState extends State<AddSimpleTask> {
                     task.isDone = widget.task!.isDone;
                     DatabaseHelper.instance.updateTask(task);
                   }
+                  setState(() {});
                   widget.updateTaskList();
                 }
               },
@@ -142,7 +144,7 @@ class _AddSimpleTaskState extends State<AddSimpleTask> {
     return Container(
       margin: EdgeInsets.only(bottom: 10),
       child: Padding(
-        padding: const EdgeInsets.only(right: 96.0),
+        padding: const EdgeInsets.only(left: 24, right: 96.0),
         child: Row(
           children: [
             Checkbox(
@@ -154,10 +156,11 @@ class _AddSimpleTaskState extends State<AddSimpleTask> {
             ),
             Expanded(
               child: TextField(
+                  textCapitalization: TextCapitalization.sentences,
                   focusNode: _todoFocus,
                   controller: TextEditingController()..clear(),
                   textInputAction: TextInputAction.newline,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
                   decoration: InputDecoration(
                       hintText: "Enter Todo Item", border: InputBorder.none),
                   textAlign: TextAlign.justify,
@@ -179,7 +182,7 @@ class _AddSimpleTaskState extends State<AddSimpleTask> {
 
   Widget todoWidget(Todo todo) {
     return Container(
-      margin: EdgeInsets.only(right: 24),
+      margin: EdgeInsets.only(left: 24, right: 24),
       child: Row(
         children: [
           Checkbox(
@@ -197,7 +200,7 @@ class _AddSimpleTaskState extends State<AddSimpleTask> {
           ),
           Expanded(
             child: TextField(
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
               decoration: InputDecoration(
                   hintText: todo.title,
                   border: InputBorder.none,
@@ -205,11 +208,12 @@ class _AddSimpleTaskState extends State<AddSimpleTask> {
               textAlign: TextAlign.justify,
               onSubmitted: (value) async {
                 if (value != "") {
-                  Todo todo = Todo(
+                  Todo todoWithId = Todo.withId(
+                      id: todo.id,
                       taskId: _taskId,
                       isDone: widget.task!.isDone,
                       title: value);
-                  DatabaseHelper.instance.updateTodo(todo);
+                  DatabaseHelper.instance.updateTodo(todoWithId);
                   _updateTodoList();
                 }
               },
